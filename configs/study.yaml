@@ -1,0 +1,9 @@
+group: "Study"
+items:
+  - name: "Watch DP Patterns video"
+    importance: 4
+    url: "https://www.youtube.com/watch?v=TyW6l1QPXpQ"
+  - name: "Review notes (30 min)"
+    importance: 3
+  - name: "Summarize yesterday's learning"
+    importance: 3

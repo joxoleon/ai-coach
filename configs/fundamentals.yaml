@@ -1,0 +1,12 @@
+group: "DSA Fundamentals"
+items:
+  - name: "Binary Search"
+    importance: 5
+  - name: "Sliding Window"
+    importance: 5
+  - name: "Kadane"
+    importance: 4
+  - name: "DFS"
+    importance: 4
+  - name: "Topological Sort"
+    importance: 3

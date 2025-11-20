@@ -1,0 +1,11 @@
+group: "Leetcode"
+items:
+  - name: "LC 102. Binary Tree Level Order"
+    importance: 4
+    url: "https://leetcode.com/problems/binary-tree-level-order-traversal/"
+  - name: "LC 121. Best Time to Buy and Sell Stock"
+    importance: 3
+    url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/"
+  - name: "LC 33. Search in Rotated Sorted Array"
+    importance: 4
+    url: "https://leetcode.com/problems/search-in-rotated-sorted-array/"

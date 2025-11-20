@@ -1,0 +1,8 @@
+group: "Habits"
+items:
+  - name: "Walk 8,000 steps"
+    importance: 3
+  - name: "Stretch for 10 minutes"
+    importance: 2
+  - name: "Read 10 pages"
+    importance: 3

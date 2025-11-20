@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold">Admin Dashboard</h1>
+        <p class="text-slate-400 text-sm">{{ date }}</p>
+      </div>
+      <a href="/" class="text-sm text-sky-300">Back</a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+        <h2 class="font-semibold">Refresh Plan</h2>
+        <button
+          class="px-4 py-2 bg-sky-500/10 text-sky-200 border border-sky-500/30 rounded-lg text-sm"
+          hx-post="/refresh"
+          hx-target="#refresh-status"
+          hx-swap="innerHTML"
+        >Force Refresh</button>
+        <div id="refresh-status" class="text-sm text-slate-400"></div>
+      </section>
+
+      <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+        <h2 class="font-semibold">Today Plan</h2>
+        <div id="plan" class="text-sm text-slate-300" hx-get="/admin/plan" hx-trigger="load"></div>
+      </section>
+    </div>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold">Recent History</h2>
+        <button
+          class="text-xs text-sky-300"
+          hx-get="/admin/history"
+          hx-target="#history"
+          hx-swap="innerHTML"
+        >Reload</button>
+      </div>
+      <div id="history" class="text-sm text-slate-300" hx-get="/admin/history" hx-trigger="load"></div>
+    </section>
+  </div>
+</body>
+</html>
