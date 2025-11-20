@@ -1,0 +1,150 @@
+{
+  "examples": [
+    {
+      "input": {
+        "today_date": "2025-01-15",
+        "task_groups": [
+          {
+            "group": "DSA Fundamentals",
+            "items": [
+              { "name": "Binary Search", "importance": 5 },
+              { "name": "Sliding Window", "importance": 5 },
+              { "name": "DFS", "importance": 4 },
+              { "name": "LCS", "importance": 3 }
+            ]
+          },
+          {
+            "group": "LeetCode",
+            "items": [
+              { "name": "Two Sum", "url": "https://leetcode.com/problems/two-sum/", "tags": ["array"], "importance": 5 },
+              { "name": "Binary Tree Level Order", "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/", "tags": ["tree"], "importance": 4 }
+            ]
+          },
+          {
+            "group": "Study",
+            "items": [
+              { "name": "Study Load Balancers (Hallointerview)", "importance": 3 },
+              { "name": "Watch NeetCode DP #3", "importance": 4 }
+            ]
+          },
+          {
+            "group": "Habits",
+            "items": [
+              { "name": "McGill Big Three", "importance": 2 },
+              { "name": "10 Minute Walk", "importance": 2 }
+            ]
+          }
+        ],
+        "recent_history": [
+          {
+            "date": "2025-01-10",
+            "name": "Sliding Window",
+            "group": "DSA Fundamentals",
+            "completed": true,
+            "difficulty": 5,
+            "days_since_last_solved": 5,
+            "streak": 1,
+            "avg_difficulty": 4
+          },
+          {
+            "date": "2025-01-11",
+            "name": "Binary Search",
+            "group": "DSA Fundamentals",
+            "completed": true,
+            "difficulty": 2,
+            "days_since_last_solved": 4,
+            "streak": 3,
+            "avg_difficulty": 2
+          },
+          {
+            "date": "2025-01-12",
+            "name": "Two Sum",
+            "group": "LeetCode",
+            "completed": true,
+            "difficulty": 3,
+            "days_since_last_solved": 3,
+            "streak": 1,
+            "avg_difficulty": 3
+          }
+        ],
+        "recent_today_tasks": [
+          {
+            "date": "2025-01-14",
+            "name": "DFS",
+            "group": "DSA Fundamentals",
+            "url": null
+          }
+        ],
+        "performance_window_days": 14,
+        "user_settings": {
+          "daily_time_budget_minutes": 55,
+          "max_items_per_group": {
+            "DSA Fundamentals": 2,
+            "LeetCode": 1,
+            "Study": 1,
+            "Habits": 1
+          },
+          "avoid_repetition_days": 3,
+          "difficulty_scale_definition": "1 = very easy, 5 = very difficult",
+          "timezone": "Europe/Belgrade"
+        }
+      },
+      "output": {
+        "date": "2025-01-15",
+        "tasks": [
+          {
+            "name": "Sliding Window",
+            "group": "DSA Fundamentals",
+            "reason": "Rated difficult recently, overdue for reinforcement, high importance fundamental.",
+            "url": null,
+            "difficulty_estimate": 4,
+            "importance": 5,
+            "metadata": {
+              "action": "fundamental_review",
+              "time_estimate_minutes": 12,
+              "tags": ["two-pointers", "window"]
+            }
+          },
+          {
+            "name": "Binary Search",
+            "group": "DSA Fundamentals",
+            "reason": "Recently mastered, included for stability in rotation.",
+            "url": null,
+            "difficulty_estimate": 2,
+            "importance": 5,
+            "metadata": {
+              "action": "fundamental_review",
+              "time_estimate_minutes": 10
+            }
+          },
+          {
+            "name": "Binary Tree Level Order",
+            "group": "LeetCode",
+            "reason": "Tree topic not visited for 6+ days, medium difficulty, fits today's budget.",
+            "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+            "difficulty_estimate": 3,
+            "importance": 4,
+            "metadata": {
+              "action": "leetcode",
+              "time_estimate_minutes": 20,
+              "tags": ["tree", "bfs"]
+            }
+          },
+          {
+            "name": "Study Load Balancers (Hallointerview)",
+            "group": "Study",
+            "reason": "Study topic has not been visited in several days; helps maintain system design exposure.",
+            "url": null,
+            "difficulty_estimate": 2,
+            "importance": 3,
+            "metadata": {
+              "action": "study",
+              "time_estimate_minutes": 8
+            }
+          }
+        ],
+        "summary_notes": "Sliding Window was recently rated difficult, so it was prioritized. Binary Search is included to maintain rotation stability. A tree LeetCode problem was scheduled because tree topics were not visited recently. A short study task fits the remaining time budget and maintains system design consistency."
+      }
+    }
+  ]
+}

@@ -1,8 +1,9 @@
-import json
 from datetime import date
-from typing import Any, Dict, List
+import json
+from typing import Any, Dict, List, Tuple
 
 from app.core.config import get_settings
+from app.services.prompt_loader import load_prompt_templates
 from app.services.selector import select_with_fallback
 
 try:
@@ -11,19 +12,27 @@ except Exception:  # pragma: no cover
     OpenAI = None  # type: ignore
 
 
-SYSTEM_PROMPT = """
-You are an adaptive scheduler for daily practice tasks.
-Your job is to design a balanced, reasonable workload for the user for today.
-Use the following inputs:
-- Task groups and their items with importance.
-- User’s performance history.
-- Difficulty ratings.
-- Last 14 days of tasks.
-- Daily time budget: 45–60 minutes.
-
-Return ONLY valid JSON with "date" and a "tasks" array.
-Tasks should be varied, not repetitive, and must reflect weaknesses and importance.
-Some tasks may be conversational ("Discuss DP Tabulation vs Memoization with AI"), physical ("Walk 10,000 steps"), or study-oriented ("Watch NeetCode DP-5 video").
+SYSTEM_PROMPT = (
+    "You are an adaptive scheduler for daily practice tasks. Return strictly valid JSON following the schema."
+)
+SCHEMA_SPEC = """
+Required JSON schema:
+{
+    "date": "YYYY-MM-DD",
+    "tasks": [
+        {
+            "name": "...",
+            "group": "...",
+            "importance": <optional>,
+            "difficulty_estimate": <optional 1-5>,
+            "reason": "...",
+            "url": "... or null",
+            "metadata": {... arbitrary additional data ...}
+        }
+    ],
+    "summary_notes": "explanation of the reasoning and analysis (not a task)"
+}
+Reply with only JSON.
 """
 
 
@@ -32,28 +41,43 @@ class AISelector:
         self.settings = get_settings()
         self.client = OpenAI(api_key=self.settings.openai_api_key) if OpenAI else None
 
-    def _format_prompt(
+    def _build_system_prompt(self) -> str:
+        prompt_bundle = load_prompt_templates()
+        combined = prompt_bundle or SYSTEM_PROMPT
+        return combined + "\n\n" + SCHEMA_SPEC
+
+    def _build_user_payload(
         self,
         groups: List[Dict[str, Any]],
         history_snippet: List[Dict[str, Any]],
         recent_tasks: List[Dict[str, Any]],
     ) -> str:
         payload = {
-            "today": str(date.today()),
-            "groups": groups,
+            "today_date": str(date.today()),
+            "task_groups": groups,
             "recent_history": history_snippet,
-            "recent_tasks": recent_tasks,
-            "target_time_minutes": "45-60",
+            "recent_today_tasks": recent_tasks,
+            "performance_window_days": self.settings.task_sample_days,
+            "user_settings": {
+                "daily_time_budget_minutes": self.settings.time_budget,
+                "task_limits": self.settings.task_limits,
+                "avoid_repetition_days": self.settings.avoid_days,
+                "difficulty_scale_definition": "1=very easy, 5=very hard",
+                "timezone": self.settings.timezone,
+                "max_items_total": self.settings.max_items,
+            },
         }
-        return json.dumps(payload, ensure_ascii=False, indent=2)
+        return json.dumps(payload, ensure_ascii=False)
 
-    def _validate_shape(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _validate_shape(self, data: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], str]:
         if not isinstance(data, dict):
             raise ValueError("AI response must be an object")
+
         tasks = data.get("tasks")
         if not isinstance(tasks, list):
             raise ValueError("AI response missing tasks array")
-        cleaned = []
+
+        cleaned: List[Dict[str, Any]] = []
         for task in tasks:
             if not isinstance(task, dict):
                 continue
@@ -61,15 +85,54 @@ class AISelector:
             group = task.get("group")
             if not name or not group:
                 continue
-            cleaned.append({
-                "name": name,
-                "group": group,
-                "url": task.get("url"),
-                "reason": task.get("reason"),
-            })
+            cleaned.append(
+                {
+                    "name": name,
+                    "group": group,
+                    "importance": task.get("importance"),
+                    "difficulty_estimate": task.get("difficulty_estimate"),
+                    "reason": task.get("reason"),
+                    "url": task.get("url"),
+                    "metadata": task.get("metadata") or {},
+                }
+            )
+
         if not cleaned:
             raise ValueError("AI response had no valid tasks")
-        return cleaned
+
+        summary_notes = data.get("summary_notes") or ""
+        if not isinstance(summary_notes, str):
+            summary_notes = str(summary_notes)
+
+        return cleaned, summary_notes
+
+    def _call_model(self, messages: List[Dict[str, str]]) -> Dict[str, Any]:
+        if not self.client:
+            raise RuntimeError("OpenAI client not configured")
+        response = self.client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=messages,
+            response_format={"type": "json_object"},
+        )
+        content = response.choices[0].message.content
+        return json.loads(content)
+
+    def _request_with_retries(self, messages: List[Dict[str, str]], retries: int = 2) -> Dict[str, Any]:
+        last_error: Exception | None = None
+        working_messages = list(messages)
+        for _attempt in range(retries + 1):
+            try:
+                return self._call_model(working_messages)
+            except Exception as exc:  # pragma: no cover - runtime guard
+                last_error = exc
+                correction_note = {
+                    "role": "user",
+                    "content": "Your last reply was invalid JSON. Reply again with ONLY valid JSON conforming to the schema.",
+                }
+                working_messages.append(correction_note)
+        if last_error:
+            raise last_error
+        raise RuntimeError("AI request failed with unknown error.")
 
     def generate(
         self,
@@ -77,26 +140,22 @@ class AISelector:
         history_snippet: List[Dict[str, Any]],
         recent_tasks: List[Dict[str, Any]],
         session,
-    ) -> List[Dict[str, Any]]:
+    ) -> Tuple[List[Dict[str, Any]], str, str]:
         if not self.settings.use_ai or not self.client:
-            return select_with_fallback(session, groups)
+            tasks = select_with_fallback(session, groups)
+            return tasks, "Fallback selector used (AI disabled or unavailable).", "{}"
 
-        prompt = self._format_prompt(groups, history_snippet, recent_tasks)
+        system_prompt = self._build_system_prompt()
+        user_content = self._build_user_payload(groups, history_snippet, recent_tasks)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content},
+        ]
 
         try:
-            response = self.client.responses.create(
-                model="gpt-4.1-mini",
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                response_format={"type": "json_object"},
-            )
-            content = getattr(response, "output_text", None)
-            if not content and hasattr(response, "output"):
-                content = response.output[0].content[0].text  # type: ignore
-            data = json.loads(content)
-            return self._validate_shape(data)
+            data = self._request_with_retries(messages)
+            tasks, summary_notes = self._validate_shape(data)
+            return tasks, summary_notes, json.dumps(data)
         except Exception:
-            # fall back to deterministic selector
-            return select_with_fallback(session, groups)
+            tasks = select_with_fallback(session, groups)
+            return tasks, "Fallback selector used after AI failure.", "{}"

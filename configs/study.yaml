@@ -1,9 +1,158 @@
-group: "Study"
-items:
-  - name: "Watch DP Patterns video"
-    importance: 4
-    url: "https://www.youtube.com/watch?v=TyW6l1QPXpQ"
-  - name: "Review notes (30 min)"
-    importance: 3
-  - name: "Summarize yesterday's learning"
-    importance: 3
+# ======================================================================
+# STUDY – SYSTEM DESIGN BASICS (Theory, Foundations)
+# High Importance: 5
+# ======================================================================
+- group: "System Design – Basics"
+  items:
+    - { name: "Vertical vs Horizontal Scaling", importance: 5 }
+    - { name: "Latency vs Throughput", importance: 5 }
+    - { name: "CAP Theorem (intuition, not math)", importance: 5 }
+    - { name: "Load Balancer vs Reverse Proxy", importance: 5 }
+    - { name: "What is a CDN? When to use one?", importance: 5 }
+    - { name: "DNS Basics and TTL", importance: 5 }
+    - { name: "SQL vs NoSQL (tradeoffs)", importance: 5 }
+    - { name: "Strong vs Eventual Consistency", importance: 5 }
+    - { name: "Partitioning vs Sharding", importance: 5 }
+    - { name: "Caching 101: Cache Hit, Miss, Eviction", importance: 5 }
+    - { name: "Caching Strategies (Write-through / Write-back / Write-around)", importance: 5 }
+    - { name: "REST vs gRPC vs WebSockets", importance: 5 }
+    - { name: "Pull vs Long-Poll vs SSE vs WebSockets", importance: 5 }
+    - { name: "What is Idempotency?", importance: 5 }
+    - { name: "Backpressure and Flow Control basics", importance: 5 }
+    - { name: "What is a Distributed System? One-sentence concepts", importance: 5 }
+    - { name: "What is a Message Queue?", importance: 5 }
+    - { name: "What is a Rate Limiter?", importance: 5 }
+    - { name: "Basic High-Level Architecture Diagram Practice", importance: 5 }
+    - { name: "Bottlenecks and Single Points of Failure", importance: 5 }
+
+
+# ======================================================================
+# SYSTEM COMPONENTS – Core Infrastructure
+# Medium-High Importance: 4
+# ======================================================================
+- group: "System Design – Components"
+  items:
+    - { name: "Load Balancers (LB4, LB7, strategies)", importance: 4 }
+    - { name: "Reverse Proxy (Nginx/Envoy)", importance: 4 }
+    - { name: "Distributed Cache (Redis/Memcached)", importance: 4 }
+    - { name: "Message Queues (Kafka, RabbitMQ, SQS)", importance: 4 }
+    - { name: "Pub/Sub vs Queue", importance: 4 }
+    - { name: "Search Indexes (Inverted Index)", importance: 4 }
+    - { name: "Database Indexes (B+ Trees)", importance: 4 }
+    - { name: "Distributed Locking (Redis, Zookeeper)", importance: 4 }
+    - { name: "Rate Limiters (token bucket, leaky bucket)", importance: 4 }
+    - { name: "Distributed Job Scheduler (Celery, Chronos)", importance: 4 }
+    - { name: "Object Storage (S3 concept)", importance: 4 }
+    - { name: "File Storage vs Block Storage vs Object Storage", importance: 4 }
+    - { name: "Replication (sync, async)", importance: 4 }
+    - { name: "Leader Election (Zookeeper / Raft basics)", importance: 4 }
+    - { name: "Database Partitioning Methods", importance: 4 }
+    - { name: "Consistent Hashing", importance: 4 }
+    - { name: "Bloom Filters", importance: 4 }
+    - { name: "Change Data Capture (CDC)", importance: 4 }
+    - { name: "Column Stores vs Row Stores", importance: 4 }
+    - { name: "Data Lakes vs Warehouses", importance: 4 }
+
+
+# ======================================================================
+# DISTRIBUTED PATTERNS – High-Value Thought Models
+# Importance: 4
+# ======================================================================
+- group: "System Design – Distributed Patterns"
+  items:
+    - { name: "CQRS (Command Query Responsibility Segregation)", importance: 4 }
+    - { name: "Event Sourcing", importance: 4 }
+    - { name: "Leader Election Strategies", importance: 4 }
+    - { name: "Raft Consensus (simplified)", importance: 4 }
+    - { name: "Write-Ahead Logging (WAL)", importance: 4 }
+    - { name: "Materialized Views", importance: 4 }
+    - { name: "Read Replicas & Write Replicas", importance: 4 }
+    - { name: "Anti-Entropy Mechanisms", importance: 4 }
+    - { name: "Gossip Protocols", importance: 4 }
+    - { name: "Multi-Region Failover", importance: 4 }
+    - { name: "Blue/Green vs Canary Deployments", importance: 4 }
+    - { name: "Throttling & Circuit Breakers", importance: 4 }
+    - { name: "Bulkheads Pattern", importance: 4 }
+    - { name: "Idempotent APIs", importance: 4 }
+    - { name: "Retry Strategies & Backoff", importance: 4 }
+    - { name: "Distributed Transactions (Sagas)", importance: 4 }
+    - { name: "High Availability vs Fault Tolerance", importance: 4 }
+    - { name: "Hot vs Warm vs Cold Storage", importance: 4 }
+    - { name: "Distributed Counters", importance: 4 }
+    - { name: "Time-series storage basics", importance: 4 }
+
+
+# ======================================================================
+# APPLICATION DESIGNS – Mini Systems
+# These are the real gold. Core interview tasks.
+# Importance: 3
+# ======================================================================
+- group: "System Design – Application Designs"
+  items:
+    - { name: "Design a URL Shortener", importance: 3 }
+    - { name: "Design a Rate Limiter", importance: 3 }
+    - { name: "Design a Notification Service", importance: 3 }
+    - { name: "Design a Distributed Counter Service (100M QPS)", importance: 3 }
+    - { name: "Design a Chat System (simple messaging)", importance: 3 }
+    - { name: "Design a News Feed (simple push/pull)", importance: 3 }
+    - { name: "Design a Logging System", importance: 3 }
+    - { name: "Design a Metrics Pipeline (Prometheus-like)", importance: 3 }
+    - { name: "Design a File Upload Service", importance: 3 }
+    - { name: "Design a Video Upload Pipeline", importance: 3 }
+    - { name: "Design a Real-Time Notification Fanout", importance: 3 }
+    - { name: "Design a Job Queue Worker System", importance: 3 }
+    - { name: "Design an Authentication System", importance: 3 }
+    - { name: "Design an API Gateway", importance: 3 }
+    - { name: "Design an Analytics Event Collector", importance: 3 }
+    - { name: "Design an Online Judge (LeetCode-like)", importance: 3 }
+    - { name: "Design a Rate-Limited API Proxy", importance: 3 }
+    - { name: "Design a Social Graph Service", importance: 3 }
+    - { name: "Design a Like/Reaction Service", importance: 3 }
+    - { name: "Design a Thumbnail Generation Pipeline", importance: 3 }
+
+
+# ======================================================================
+# FULL ARCHITECTURES – Big Systems
+# These are your once-every-1–2-week challenges.
+# Importance: 3
+# ======================================================================
+- group: "System Design – Full Architectures"
+  items:
+    - { name: "Design Instagram", importance: 3 }
+    - { name: "Design WhatsApp", importance: 3 }
+    - { name: "Design TikTok For You Feed", importance: 3 }
+    - { name: "Design Twitter/X Timeline", importance: 3 }
+    - { name: "Design Uber (matching + dispatch)", importance: 3 }
+    - { name: "Design YouTube (upload + feed + streaming)", importance: 3 }
+    - { name: "Design Dropbox / Google Drive", importance: 3 }
+    - { name: "Design Slack (channels, ws, persistence)", importance: 3 }
+    - { name: "Design Netflix Streaming Service", importance: 3 }
+    - { name: "Design Airbnb Search & Filter", importance: 3 }
+    - { name: "Design Amazon Checkout", importance: 3 }
+    - { name: "Design Pinterest (boards + discovery)", importance: 3 }
+    - { name: "Design Google Maps Routing", importance: 3 }
+    - { name: "Design Reddit Discussion Architecture", importance: 3 }
+    - { name: "Design Stripe Payment Flow", importance: 3 }
+    - { name: "Design a Recommendation Engine", importance: 3 }
+    - { name: "Design a Real-Time Bidding System", importance: 3 }
+    - { name: "Design a Multi-Region Architecture", importance: 3 }
+    - { name: "Design an Event-Driven Company Dashboard", importance: 3 }
+    - { name: "Design an E-Commerce Product Search Engine", importance: 3 }
+
+
+# ======================================================================
+# AI/ML SYSTEM DESIGN – Modern Essentials
+# Importance: 3
+# ======================================================================
+- group: "System Design – AI/ML Systems"
+  items:
+    - { name: "Embedding Pipeline (offline)", importance: 3 }
+    - { name: "Vector Database Architecture", importance: 3 }
+    - { name: "Hybrid Search (semantic + lexical)", importance: 3 }
+    - { name: "Design a Recommendation Pipeline (batch + real-time)", importance: 3 }
+    - { name: "Feature Store Architecture", importance: 3 }
+    - { name: "Retrieval-Augmented Generation Pipeline (LLMs)", importance: 3 }
+    - { name: "Design a Ranking System (clicks → scores)", importance: 3 }
+    - { name: "Offline vs Streaming Training Architecture", importance: 3 }
+    - { name: "Kafka + Flink Streaming Pipeline", importance: 3 }
+    - { name: "Design a Real-Time ML Monitoring System", importance: 3 }

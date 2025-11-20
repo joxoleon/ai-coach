@@ -37,6 +37,14 @@
 
     <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
       <div class="flex items-center justify-between">
+        <h2 class="font-semibold">AI Summary</h2>
+        <button class="text-xs text-sky-300" hx-get="/admin/summary" hx-target="#summary" hx-swap="innerHTML">Reload</button>
+      </div>
+      <div id="summary" class="text-sm text-slate-300" hx-get="/admin/summary" hx-trigger="load"></div>
+    </section>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+      <div class="flex items-center justify-between">
         <h2 class="font-semibold">Recent History</h2>
         <button
           class="text-xs text-sky-300"

@@ -47,6 +47,11 @@ Minimal FastAPI + HTMX app that rotates daily tasks from plaintext configs, augm
 - `POST /feedback` – store difficulty rating without marking done.
 - `GET /history?days=N` – recent history entries.
 - `POST /refresh` – regenerate today manually (exposed on `/admin` page).
+- `GET /admin/summary` – view AI summary text and raw JSON for today.
+
+## Prompt customization
+- Editable prompt templates in `configs/prompts/` (all `.md`/`.txt` concatenated alphabetically; `examples.json` embedded).
+- Adjust coaching style, constraints, and examples by editing those files without touching code.
 
 ## Scheduler
 - APScheduler job runs daily at 00:05 local time, loading configs, summarizing recent history, calling AI (or fallback), and persisting to `today_tasks`.

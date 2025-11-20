@@ -1,12 +1,132 @@
-group: "DSA Fundamentals"
-items:
-  - name: "Binary Search"
-    importance: 5
-  - name: "Sliding Window"
-    importance: 5
-  - name: "Kadane"
-    importance: 4
-  - name: "DFS"
-    importance: 4
-  - name: "Topological Sort"
-    importance: 3
+# ======================================================================
+# FUNDAMENTALS – TIER 0  (Micro Fundamentals)
+# High-frequency micro skills. Always safe to include.
+# ======================================================================
+- group: "Fundamentals – Tier 0 (Micro Basics)"
+  items:
+    - { name: "Array bounds & off-by-one patterns", importance: 5 }
+    - { name: "Prefix min/max scanning", importance: 5 }
+    - { name: "Reverse substring / subarray", importance: 5 }
+    - { name: "Sentinel technique", importance: 5 }
+    - { name: "Two-pointer partitioning (Dutch flag variant)", importance: 5 }
+    - { name: "Parenthesis validator (stack)", importance: 5 }
+    - { name: "BFS level-counting pattern", importance: 5 }
+    - { name: "Frequency map / Counter template", importance: 5 }
+
+
+# ======================================================================
+# FUNDAMENTALS – TIER 1  (Core Essentials)
+# Start here. High ROI. Appears in >50% FAANG problems.
+# ======================================================================
+- group: "Fundamentals – Tier 1 (Essentials)"
+  items:
+
+    # Arrays / Pointers
+    - { name: "Binary Search (exact, left-bound, right-bound)", importance: 5 }
+    - { name: "Two Pointers (sorted & unsorted)", importance: 5 }
+    - { name: "Sliding Window (fixed & variable)", importance: 5 }
+    - { name: "Prefix Sum arrays", importance: 5 }
+    - { name: "Kadane’s Algorithm", importance: 5 }
+    - { name: "Merge / Overlap Intervals", importance: 5 }
+    - { name: "Sweep Line interval technique", importance: 5 }
+    - { name: "Fast & slow pointers (cycle detection)", importance: 5 }
+    - { name: "Time-based sliding window using deque", importance: 5 }
+
+    # Stacks / Queues
+    - { name: "Monotonic Stack (Next Greater Element)", importance: 5 }
+    - { name: "Monotonic Queue (Sliding Window Max)", importance: 5 }
+
+    # Linked Lists
+    - { name: "Reverse Linked List (iterative)", importance: 5 }
+    - { name: "Reverse sublist (m to n)", importance: 5 }
+    - { name: "Detect cycle in Linked List", importance: 5 }
+    - { name: "Merge two sorted lists", importance: 5 }
+
+    # Trees – basics
+    - { name: "Binary Tree inorder traversal (iterative)", importance: 5 }
+    - { name: "Binary Tree preorder traversal (iterative)", importance: 5 }
+    - { name: "Binary Tree postorder traversal (iterative)", importance: 5 }
+    - { name: "Level-order BFS traversal", importance: 5 }
+    - { name: "Check balanced binary tree", importance: 5 }
+    - { name: "Validate BST", importance: 5 }
+    - { name: "Diameter of binary tree", importance: 5 }
+
+
+# ======================================================================
+# FUNDAMENTALS – TIER 2  (Intermediate Core)
+# Real FAANG interview muscle. Medium-level patterns.
+# ======================================================================
+- group: "Fundamentals – Tier 2 (Intermediate)"
+  items:
+
+    # Graphs
+    - { name: "Graph BFS (adjacency list)", importance: 4 }
+    - { name: "Graph DFS (adjacency list)", importance: 4 }
+    - { name: "Topological Sort (Kahn’s Algorithm)", importance: 4 }
+    - { name: "Cycle detection in directed graph (DFS)", importance: 4 }
+    - { name: "Cycle detection in undirected graph (DFS/Union-Find)", importance: 4 }
+    - { name: "Connected components (DFS/BFS)", importance: 4 }
+    - { name: "Flood Fill", importance: 4 }
+    - { name: "Bipartite check (coloring BFS)", importance: 4 }
+    - { name: "Shortest path in unweighted graph (BFS)", importance: 4 }
+
+    # Heaps / DS
+    - { name: "Min-Heap / Max-Heap usage", importance: 4 }
+    - { name: "Priority Queue with custom comparators", importance: 4 }
+    - { name: "Union-Find (path compression + rank)", importance: 4 }
+    - { name: "Trie (insert/search/prefix)", importance: 4 }
+    - { name: "LRU Cache (hashmap + doubly linked list)", importance: 4 }
+
+    # Intermediate DP
+    - { name: "Fibonacci (memo + tab)", importance: 4 }
+    - { name: "Climbing Stairs", importance: 4 }
+    - { name: "House Robber", importance: 4 }
+    - { name: "House Robber II", importance: 4 }
+    - { name: "Unique Paths", importance: 4 }
+    - { name: "Unique Paths with obstacles", importance: 4 }
+    - { name: "1D DP patterns (rolling arrays)", importance: 4 }
+    - { name: "Min-cost path DP in grid", importance: 4 }
+
+    # Strings
+    - { name: "Longest Palindromic Substring", importance: 4 }
+    - { name: "Longest repeating character replacement", importance: 4 }
+    - { name: "Group Anagrams", importance: 4 }
+    - { name: "Valid Palindrome II (delete one)", importance: 4 }
+    - { name: "Two-pointer substring patterns", importance: 4 }
+
+
+# ======================================================================
+# FUNDAMENTALS – TIER 3  (Advanced)
+# Introduce only when fundamentals stabilize.
+# ======================================================================
+- group: "Fundamentals – Tier 3 (Advanced)"
+  items:
+
+    # Advanced Graphs / Greedy
+    - { name: "Dijkstra’s Algorithm (min-heap)", importance: 3 }
+    - { name: "Bellman-Ford", importance: 3 }
+    - { name: "Floyd-Warshall", importance: 3 }
+    - { name: "0-1 BFS (deque)", importance: 3 }
+    - { name: "Multi-source BFS (with queue)", importance: 3 }
+    - { name: "Tree DP basics (rooted DP)", importance: 3 }
+
+    # Advanced DP
+    - { name: "Longest Common Subsequence (LCS)", importance: 3 }
+    - { name: "Edit Distance", importance: 3 }
+    - { name: "Longest Palindromic Subsequence", importance: 3 }
+    - { name: "0/1 Knapsack", importance: 3 }
+    - { name: "Unbounded Knapsack", importance: 3 }
+    - { name: "Coin Change (min coins)", importance: 3 }
+    - { name: "Partition Equal Subset Sum", importance: 3 }
+    - { name: "Palindrome Partitioning (min cuts)", importance: 3 }
+
+    # Advanced Strings
+    - { name: "KMP prefix table", importance: 3 }
+    - { name: "Rabin-Karp rolling hash", importance: 3 }
+    - { name: "Longest substring without repeating characters", importance: 3 }
+
+    # Advanced Trees
+    - { name: "LCA in binary tree", importance: 3 }
+    - { name: "Serialize/Deserialize binary tree (DFS/BFS)", importance: 3 }
+    - { name: "Build tree from preorder + inorder", importance: 3 }
+    - { name: "Binary Tree Zig-Zag BFS", importance: 3 }

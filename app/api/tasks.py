@@ -39,6 +39,9 @@ def get_today(db: Session = Depends(get_db)) -> Dict[str, Any]:
                 "name": t.name,
                 "url": t.url,
                 "reason": (t.extra or {}).get("reason"),
+                "metadata": (t.extra or {}).get("metadata") or {},
+                "action": (t.extra or {}).get("action"),
+                "difficulty_estimate": (t.extra or {}).get("difficulty_estimate"),
             }
         )
     return {"date": str(today), "tasks": grouped}

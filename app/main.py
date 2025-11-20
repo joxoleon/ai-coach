@@ -9,6 +9,7 @@ from app.api import admin as admin_router
 from app.core.database import Base, engine, get_db, SessionLocal
 from app.core.scheduler import start_scheduler, generate_daily_tasks, scheduler
 from app.models.task import TodayTask
+from app.models.daily_summary import DailySummary  # noqa: F401 - ensure table creation
 
 app = FastAPI(title="Adaptive Daily Task Scheduler")
 app.include_router(tasks_router.router)

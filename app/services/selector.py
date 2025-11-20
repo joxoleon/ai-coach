@@ -6,9 +6,11 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 
 from app.models.history import TaskHistory
+from app.core.config import get_settings
 
 
 TaskPlan = Dict[str, Any]
+settings = get_settings()
 
 
 class FallbackSelector:
@@ -52,12 +54,7 @@ class FallbackSelector:
         history_map = self._history_lookup()
         plan: List[TaskPlan] = []
 
-        pick_counts = {
-            "fundamentals": 3,
-            "leetcode": 1,
-            "habits": 1,
-            "study": 1,
-        }
+        pick_counts = {k.lower(): v for k, v in settings.task_limits.items()}
 
         for group_data in groups:
             group_name = group_data.get("group", "Unknown")
@@ -65,16 +62,7 @@ class FallbackSelector:
             if not items:
                 continue
             key = group_name.lower()
-            if "fundamental" in key:
-                target = pick_counts.get("fundamentals", 2)
-            elif "leetcode" in key:
-                target = pick_counts.get("leetcode", 1)
-            elif "habit" in key:
-                target = pick_counts.get("habits", 1)
-            elif "study" in key:
-                target = pick_counts.get("study", 1)
-            else:
-                target = pick_counts.get(key, 1)
+            target = pick_counts.get(key, 1)
             scored = [
                 (self._score_item(item, group_name, history_map), item)
                 for item in items
@@ -88,6 +76,7 @@ class FallbackSelector:
                     "group": group_name,
                     "url": item.get("url"),
                     "reason": "Fallback selector based on recency/importance",
+                    "metadata": {"action": "practice"},
                 })
 
             # slight rotation if fundamentals has more than threshold

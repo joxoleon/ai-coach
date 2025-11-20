@@ -1,12 +1,15 @@
 from datetime import date
+import html
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+from datetime import timedelta
 
 from app.core.database import get_db
 from app.core.scheduler import generate_daily_tasks
 from app.models.task import TodayTask
 from app.models.history import TaskHistory
+from app.models.daily_summary import DailySummary
 
 router = APIRouter()
 
@@ -38,7 +41,13 @@ def plan(db: Session = Depends(get_db)):
 
 @router.get("/admin/history", response_class=HTMLResponse)
 def admin_history(db: Session = Depends(get_db)):
-    rows = db.query(TaskHistory).order_by(TaskHistory.date.desc()).limit(50).all()
+    cutoff = date.today() - timedelta(days=7)
+    rows = (
+        db.query(TaskHistory)
+        .filter(TaskHistory.date >= cutoff)
+        .order_by(TaskHistory.date.desc(), TaskHistory.timestamp.desc())
+        .all()
+    )
     if not rows:
         return "<p class='text-slate-500'>No history yet.</p>"
     items = [
@@ -47,3 +56,21 @@ def admin_history(db: Session = Depends(get_db)):
     ]
     header = "<div class='grid grid-cols-5 gap-2 text-xs text-slate-400 uppercase tracking-wide pb-1 border-b border-slate-800'><span>Date</span><span class='col-span-2'>Name</span><span>Group</span><span>Status</span></div>"
     return header + "".join(items)
+
+
+@router.get("/admin/summary", response_class=HTMLResponse)
+def admin_summary(db: Session = Depends(get_db)):
+    summary = (
+        db.query(DailySummary)
+        .filter(DailySummary.date == date.today())
+        .order_by(DailySummary.id.desc())
+        .first()
+    )
+    if not summary:
+        return "<p class='text-slate-500'>No summary generated yet.</p>"
+    raw = html.escape(summary.raw_ai_response or "{}")
+    text = html.escape(summary.summary_text or "—")
+    return (
+        f"<div class='space-y-2'><p class='text-sm text-slate-200'>Summary: {text}</p>"
+        f"<pre class='bg-slate-950 border border-slate-800 rounded p-2 text-[11px] overflow-auto'>{raw}</pre></div>"
+    )
