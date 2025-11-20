@@ -1,0 +1,39 @@
+- name: "Guts"
+  image: "/static/avatars/guts.png"
+  categories: ["DSA", "fundamentals", "challenge", "hard"]
+  quotes:
+    - "If you're always worried about crushing the ants beneath you... you won't be able to walk."
+    - "You have the strength. Get up and fight again."
+    - "Struggle, endure, rise — that's how you win."
+
+- name: "Kamina"
+  image: "/static/avatars/kamina.png"
+  categories: ["study", "system_design", "motivation"]
+  quotes:
+    - "Believe in the you who believes in yourself!"
+    - "Go beyond the impossible and kick reason to the curb!"
+    - "When you’re scared, that’s when you’re strongest."
+
+- name: "Saitama"
+  image: "/static/avatars/saitama.png"
+  categories: ["leetcode", "efficiency"]
+  quotes:
+    - "Do it once. Do it right. Then relax."
+    - "You're overthinking it. Just solve it."
+    - "Serious punch. Serious effort. Serious gains."
+
+- name: "Goku"
+  image: "/static/avatars/goku.png"
+  categories: ["growth", "progress", "learning"]
+  quotes:
+    - "Power comes in response to a need, not a desire."
+    - "Train hard, find your limit, break it."
+    - "Every challenge is a chance to grow."
+
+- name: "Master Roshi"
+  image: "/static/avatars/roshi.png"
+  categories: ["habits", "discipline", "lifestyle"]
+  quotes:
+    - "Discipline is the strongest technique."
+    - "Be consistent today, and tomorrow takes care of itself."
+    - "Even small training adds up to big strength."
