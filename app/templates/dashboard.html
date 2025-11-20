@@ -9,31 +9,35 @@
   <style>
     .avatar-section {
       display: flex;
-      justify-content: flex-start;
-      align-items: center;
+      justify-content: center;
+      align-items: flex-start;
       margin-bottom: 30px;
     }
     .avatar-wrapper {
       position: relative;
       display: flex;
-      align-items: center;
-    }
-    .avatar-img {
-      height: 180px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 8px rgba(0,0,0,0.4));
+      align-items: flex-start;
+      gap: 16px;
     }
     .avatar-bubble {
-      margin-left: 20px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.20);
-      padding: 14px 18px;
-      border-radius: 12px;
-      max-width: 300px;
-      color: #e5e5e5;
+      background: #f4d35e;
+      border: 2px solid #b7791f;
+      padding: 16px 20px;
+      max-width: 320px;
+      color: #1f2937;
       font-size: 0.95rem;
       line-height: 1.35rem;
-      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      position: relative;
+      border-radius: 60% 50% 55% 50% / 55% 50% 60% 50%;
+      order: 1;
+      transform: translateY(0);
+    }
+    .avatar-img {
+      height: 190px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.4));
+      order: 2;
     }
     @media (max-width: 600px) {
       .avatar-section {
@@ -41,10 +45,12 @@
         align-items: center;
         text-align: center;
       }
+      .avatar-wrapper {
+        flex-direction: column-reverse;
+      }
       .avatar-bubble {
-        margin-left: 0;
-        margin-top: 12px;
         max-width: 90%;
+        transform: translateY(0);
       }
     }
   </style>
@@ -62,10 +68,10 @@
     {% if avatar %}
     <div class="avatar-section">
       <div class="avatar-wrapper">
-        <img class="avatar-img" src="{{ avatar.image }}" alt="{{ avatar.name }}">
         <div class="avatar-bubble">
             {{ avatar.quote }}
         </div>
+        <img class="avatar-img" src="{{ avatar.image }}" alt="{{ avatar.name }}">
       </div>
     </div>
     {% endif %}

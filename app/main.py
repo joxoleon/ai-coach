@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from app.services.avatar_picker import pick_avatar_for_day, pick_quote_for_avatar
+from app.services.avatar_picker import pick_avatar_for_day, pick_quote_for_avatar, pick_random_avatar
 
 from app.api import tasks as tasks_router
 from app.api import admin as admin_router
@@ -48,7 +48,7 @@ def home(request: Request, db=Depends(get_db)):
     grouped = {}
     for t in tasks:
         grouped.setdefault(t.group, []).append(t)
-    avatar = pick_avatar_for_day(today.toordinal())
+    avatar = pick_random_avatar()
     if avatar:
         avatar_quote = pick_quote_for_avatar(avatar)
         if avatar_quote:

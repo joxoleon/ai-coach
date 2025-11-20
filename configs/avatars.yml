@@ -1,18 +1,11 @@
-- name: "Guts"
-  image: "/static/avatars/guts.png"
-  categories: ["DSA", "fundamentals", "challenge", "hard"]
-  quotes:
-    - "If you're always worried about crushing the ants beneath you... you won't be able to walk."
-    - "You have the strength. Get up and fight again."
-    - "Struggle, endure, rise — that's how you win."
-
 - name: "Kamina"
   image: "/static/avatars/kamina.png"
   categories: ["study", "system_design", "motivation"]
   quotes:
     - "Believe in the you who believes in yourself!"
-    - "Go beyond the impossible and kick reason to the curb!"
-    - "When you’re scared, that’s when you’re strongest."
+    - "PRCANJE I ROK RADIO!"
+    - "Rok Radio jebe mame kurve"
+    - "Ko napuni ove lignje usrane?"
 
 - name: "Saitama"
   image: "/static/avatars/saitama.png"
@@ -21,6 +14,7 @@
     - "Do it once. Do it right. Then relax."
     - "You're overthinking it. Just solve it."
     - "MIHAJLOO OO O OO O  O OOOO"
+    - "Je li,\n ko napuni ove lignje?"
 
 - name: "Goku"
   image: "/static/avatars/goku.png"
@@ -34,6 +28,6 @@
   image: "/static/avatars/roshi.png"
   categories: ["habits", "discipline", "lifestyle"]
   quotes:
-    - "Discipline is the strongest technique."
-    - "Be consistent today, and tomorrow takes care of itself."
-    - "Even small training adds up to big strength."
+    - "I have many things... a best friend who's a turtle, and island, chlamydia... this is not one of them..."
+    - "MAJSTORE, ZADNJA"
+    - "Mali, ae diži se da smestim Kosti"

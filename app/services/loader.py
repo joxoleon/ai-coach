@@ -23,6 +23,13 @@ def load_configs(config_dir: Path | None = None) -> List[Dict[str, Any]]:
     for file in base.glob("*.yaml"):
         with open(file, "r", encoding="utf-8") as f:
             content = yaml.safe_load(f)
-            validated = _validate_group(content, file)
-            groups.append(validated)
+            if content is None:
+                continue
+            if isinstance(content, list):
+                for entry in content:
+                    validated = _validate_group(entry, file)
+                    groups.append(validated)
+            else:
+                validated = _validate_group(content, file)
+                groups.append(validated)
     return groups

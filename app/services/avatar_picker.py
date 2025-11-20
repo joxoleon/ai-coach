@@ -36,6 +36,13 @@ def pick_avatar_for_day(seed: int) -> Optional[Dict[str, Any]]:
     return rng.choice(avatars)
 
 
+def pick_random_avatar() -> Optional[Dict[str, Any]]:
+    avatars = load_avatars()
+    if not avatars:
+        return None
+    return random.choice(avatars)
+
+
 def pick_avatar_for_group(group: str) -> Optional[Dict[str, Any]]:
     avatars = load_avatars()
     if not avatars:
