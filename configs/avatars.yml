@@ -2,7 +2,6 @@
   image: "/static/avatars/kamina.png"
   categories: ["study", "system_design", "motivation"]
   quotes:
-    - "Believe in the you who believes in yourself!"
     - "PRCANJE I ROK RADIO!"
     - "Rok Radio jebe mame kurve"
     - "Ko napuni ove lignje usrane?"
@@ -11,23 +10,26 @@
   image: "/static/avatars/saitama.png"
   categories: ["leetcode", "efficiency"]
   quotes:
-    - "Do it once. Do it right. Then relax."
-    - "You're overthinking it. Just solve it."
     - "MIHAJLOO OO O OO O  O OOOO"
     - "Je li,\n ko napuni ove lignje?"
+    - "Si gledao Pasulj Ramadani Obračun? \n E pa ti si RAMADANI!"
+    - "Ma saću ti napravim ja rodjendan"
 
 - name: "Goku"
   image: "/static/avatars/goku.png"
   categories: ["growth", "progress", "learning"]
   quotes:
     - "Mozes da izvedeš čoveka iz Borče, al ne i Borču iz čoveka"
-    - "HASAAAA"
-    - "KAIOKEN    TIMES    THREEEE"
+    - "HASAAAA!!!!!"
+    - "I ONDA MU OVAJ KAŽE, \n PA VODI JE U MRAK DA TI SIJA, \n AHAHAHAHAHAHAHAHAHA"
+
 
 - name: "Master Roshi"
   image: "/static/avatars/roshi.png"
   categories: ["habits", "discipline", "lifestyle"]
   quotes:
-    - "I have many things... a best friend who's a turtle, and island, chlamydia... this is not one of them..."
-    - "MAJSTORE, ZADNJA"
+    - "MAJSTORE, ZADNJA!!!!"
     - "Mali, ae diži se da smestim Kosti"
+    - "IMA IZLAZ?!?!"
+    - "Pokrio se sinoć Politikom, \n Ustajem, kad ono, neko mi drpio čitulje."
+    - "Stalno seru o tim stvarima, \n al odmah da ti kažem \n ja nikad nisam spavao na klupi"
