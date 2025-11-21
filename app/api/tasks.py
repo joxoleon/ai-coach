@@ -182,6 +182,25 @@ def history(days: int = 7, db: Session = Depends(get_db)):
     ]
 
 
+@router.get("/tasks/module/{module_id}/fragment", response_class=HTMLResponse)
+def module_tasks_fragment(module_id: str, request: Request, db: Session = Depends(get_db)):
+    today = date.today()
+    tasks = (
+        db.query(TodayTask)
+        .filter(TodayTask.date == today)
+        .filter(TodayTask.module_id == module_id)
+        .all()
+    )
+    return templates.TemplateResponse(
+        "components/module_task_list.html",
+        {
+            "request": request,
+            "items": tasks,
+            "module_id": module_id,
+        },
+    )
+
+
 @router.get("/tasks/{task_id}", response_class=HTMLResponse)
 def task_detail(request: Request, task_id: int, db: Session = Depends(get_db)):
     task = db.query(TodayTask).filter(TodayTask.id == task_id).first()

@@ -1,7 +1,8 @@
 from datetime import date
 import html
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
@@ -15,6 +16,7 @@ from app.core.config import get_settings
 
 router = APIRouter()
 settings = get_settings()
+templates = Jinja2Templates(directory="app/templates")
 
 
 @router.post("/refresh")
@@ -23,13 +25,16 @@ def refresh(db: Session = Depends(get_db)):
     return {"status": "refreshed", "count": len(tasks)}
 
 
-@router.post("/refresh/module/{module_id}")
-def refresh_module(module_id: str, db: Session = Depends(get_db)):
+@router.post("/refresh/module/{module_id}", response_class=HTMLResponse)
+def refresh_module(module_id: str, request: Request, db: Session = Depends(get_db)):
     loaded_configs = load_configs()
     module_configs = getattr(loaded_configs, "modules", {}) if loaded_configs is not None else {}
     module_config = module_configs.get(module_id)
     if not module_config:
-        return {"status": "error", "detail": f"Module '{module_id}' not found"}
+        return HTMLResponse(
+            content=f"<p class='text-slate-400 text-sm'>Module '{module_id}' not found.</p>",
+            status_code=404,
+        )
 
     # delete existing tasks/summary for this module today
     db.query(TodayTask).filter(TodayTask.date == date.today(), TodayTask.module_id == module_id).delete()
@@ -70,7 +75,17 @@ def refresh_module(module_id: str, db: Session = Depends(get_db)):
         )
     )
     db.commit()
-    return {"status": "refreshed", "module": module_id, "count": created}
+
+    refreshed = (
+        db.query(TodayTask)
+        .filter(TodayTask.date == date.today(), TodayTask.module_id == module_id)
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        "components/module_task_list.html",
+        {"request": request, "items": refreshed, "module_id": module_id},
+    )
 
 
 @router.get("/admin/plan", response_class=HTMLResponse)

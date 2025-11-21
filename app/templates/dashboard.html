@@ -153,47 +153,22 @@
             <div class="text-sm text-slate-400">Refresh this module's tasks</div>
             <button
               hx-post="/refresh/module/{{ active_tab }}"
-              hx-target="#module-refresh-status"
+              hx-target="#module-task-list"
               hx-swap="innerHTML"
               hx-indicator="#module-refresh-spinner"
-              hx-on="htmx:beforeRequest: document.getElementById('module-task-list')?.classList.add('hidden'); document.getElementById('module-loading')?.classList.remove('hidden');"
-              hx-on="htmx:afterRequest: if(event.detail && event.detail.xhr && event.detail.xhr.status === 200){ location.reload(); } else { document.getElementById('module-loading')?.classList.add('hidden'); document.getElementById('module-task-list')?.classList.remove('hidden'); document.getElementById('module-refresh-status').innerText='Failed to regenerate'; }"
               class="px-3 py-1.5 rounded-lg border border-sky-500/40 text-sky-200 bg-sky-500/10 text-sm flex items-center gap-2">
               <span id="module-refresh-spinner" class="htmx-indicator h-4 w-4 border-2 border-sky-200 border-t-transparent rounded-full animate-spin"></span>
               Regenerate
             </button>
           </div>
-          <div id="module-refresh-status" class="text-xs text-slate-400"></div>
-          {% if items %}
-            <div id="module-task-list" class="space-y-3">
-              {% for item in items %}
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-lg font-semibold">{{ item.name }}</p>
-                      <p class="text-xs text-slate-500">Group: {{ item.group }}</p>
-                    </div>
-                    {% if item.url %}
-                      <a href="{{ item.url }}" target="_blank" rel="noopener" class="text-sm text-sky-300">Link</a>
-                    {% endif %}
-                  </div>
-                  {% if item.extra and item.extra.reason %}
-                    <p class="text-sm text-slate-400">Reason: {{ item.extra.reason }}</p>
-                  {% endif %}
-                </div>
-              {% endfor %}
-            </div>
-            <div id="module-loading" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-300">
-              <div class="flex items-center gap-3">
-                <span class="h-4 w-4 border-2 border-sky-200 border-t-transparent rounded-full animate-spin"></span>
-                <span>Regenerating tasks...</span>
-              </div>
-            </div>
-          {% else %}
-            <p class="text-slate-400">
-              No tasks for {{ module_labels.get(active_tab, active_tab).replace('-', ' ').replace('_', ' ') | title }} today.
-            </p>
-          {% endif %}
+          <div
+            id="module-task-list"
+            hx-get="/tasks/module/{{ active_tab }}/fragment"
+            hx-trigger="load"
+            hx-target="#module-task-list"
+            hx-swap="innerHTML">
+            {% include 'components/module_task_list.html' %}
+          </div>
         {% endif %}
       </div>
     {% else %}

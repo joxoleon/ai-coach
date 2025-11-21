@@ -1,0 +1,22 @@
+{% if items %}
+  <div class="space-y-3">
+    {% for item in items %}
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-lg font-semibold">{{ item.name }}</p>
+            <p class="text-xs text-slate-500">Group: {{ item.group }}</p>
+          </div>
+          {% if item.url %}
+            <a href="{{ item.url }}" target="_blank" rel="noopener" class="text-sm text-sky-300">Link</a>
+          {% endif %}
+        </div>
+        {% if item.extra and item.extra.reason %}
+          <p class="text-sm text-slate-400">Reason: {{ item.extra.reason }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-slate-400">No tasks for this module today.</p>
+{% endif %}
