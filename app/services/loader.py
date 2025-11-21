@@ -17,19 +17,20 @@ def _validate_group(data: Dict[str, Any], path: Path) -> Dict[str, Any]:
     return data
 
 
-def load_configs(config_dir: Path | None = None) -> List[Dict[str, Any]]:
+def load_configs(config_dir: Path | None = None) -> Dict[str, List[Dict[str, Any]]]:
     base = config_dir or CONFIG_DIR
-    groups: List[Dict[str, Any]] = []
+    configs: Dict[str, List[Dict[str, Any]]] = {}
     for file in base.glob("*.yaml"):
         with open(file, "r", encoding="utf-8") as f:
             content = yaml.safe_load(f)
             if content is None:
                 continue
+            entries: List[Dict[str, Any]] = []
             if isinstance(content, list):
                 for entry in content:
-                    validated = _validate_group(entry, file)
-                    groups.append(validated)
-            else:
-                validated = _validate_group(content, file)
-                groups.append(validated)
-    return groups
+                    entries.append(_validate_group(entry, file))
+            elif isinstance(content, dict):
+                entries.append(_validate_group(content, file))
+            if entries:
+                configs[file.stem] = entries
+    return configs

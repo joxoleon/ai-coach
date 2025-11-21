@@ -53,6 +53,29 @@
         transform: translateY(0);
       }
     }
+    .tab-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 8px;
+    }
+    .tab {
+      color: #ccc;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
@@ -76,53 +99,36 @@
     </div>
     {% endif %}
 
-    {% if tasks %}
+    {% if tabs %}
+    <div class="tab-bar">
+      {% for t in tabs %}
+        <a href="?tab={{ t }}" class="tab {{ 'active' if active_tab == t else '' }}">
+            {{ t.replace('-', ' ').replace('_', ' ') | title }}
+        </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if tasks_all %}
       <div class="space-y-6">
-        {% for group, items in tasks.items() %}
-          <section class="bg-slate-900 border border-slate-800 rounded-xl shadow-sm">
-            <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-              <div>
-                <h2 class="text-lg font-semibold">{{ group }}</h2>
-                <p class="text-xs text-slate-400">{{ items|length }} tasks</p>
-              </div>
-            </div>
-            <div class="divide-y divide-slate-800">
-              {% for item in items %}
-              <div class="px-4 py-3 flex flex-col gap-3" id="task-{{ item.id }}">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="space-y-1">
-                    <p class="font-medium">{{ item.name }}</p>
-                    {% if item.url %}
-                    <a href="{{ item.url }}" class="text-xs text-sky-300" target="_blank" rel="noopener">Link</a>
-                    {% endif %}
-                    {% if item.extra and item.extra.metadata and item.extra.metadata.action %}
-                      <p class="text-[11px] text-slate-400">Action: {{ item.extra.metadata.action }}</p>
-                    {% endif %}
-                  </div>
-                  <form class="flex items-center gap-2"
-                        hx-post="/done"
-                        hx-swap="none"
-                        hx-on="htmx:afterRequest: this.querySelectorAll('input,button').forEach(el=>{el.disabled=true;}); this.querySelector('button').innerText='Logged'; this.querySelector('button').classList.add('opacity-60');">
-                    <input type="hidden" name="task_id" value="{{ item.id }}">
-                    <input type="hidden" name="name" value="{{ item.name }}">
-                    <input type="hidden" name="group" value="{{ group }}">
-                    <label class="text-xs text-slate-400">Diff</label>
-                    <input type="range" name="difficulty" min="1" max="5" value="{{ item.extra.difficulty_estimate or 3 }}" class="w-20">
-                    <button
-                      class="px-3 py-1.5 bg-emerald-500/10 text-emerald-200 border border-emerald-500/30 rounded-lg text-sm"
-                      type="submit">
-                      Done
-                    </button>
-                  </form>
-                </div>
-                {% if item.extra and item.extra.reason %}
-                  <p class="text-sm text-slate-400">Reason: {{ item.extra.reason }}</p>
-                {% endif %}
-              </div>
-              {% endfor %}
-            </div>
-          </section>
-        {% endfor %}
+        {% if active_tab == 'today' %}
+          {% for group, items in tasks_all.items() %}
+            {% set group = group %}
+            {% set items = items %}
+            {% include 'components/task_group.html' %}
+          {% endfor %}
+        {% else %}
+          {% set filtered = tasks.get(active_tab, {}) %}
+          {% if filtered %}
+            {% for group, items in filtered.items() %}
+              {% set group = group %}
+              {% set items = items %}
+              {% include 'components/task_group.html' %}
+            {% endfor %}
+          {% else %}
+            <p class="text-slate-400">No tasks for {{ active_tab }}.</p>
+          {% endif %}
+        {% endif %}
       </div>
     {% else %}
       <p class="text-slate-400">No tasks found for today. Check back later.</p>
