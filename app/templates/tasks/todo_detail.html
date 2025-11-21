@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-3xl mx-auto px-4 py-8 space-y-6">
+    <header class="flex items-center justify-between gap-3">
+      <div>
+        <p class="text-xs text-slate-400 uppercase tracking-wide">{{ module_id }}</p>
+        <h1 class="text-2xl font-bold">{{ title }}</h1>
+      </div>
+      <a href="/" class="text-sm text-sky-300">Back</a>
+    </header>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+      <h2 class="text-lg font-semibold">Task</h2>
+      <p class="text-slate-200 whitespace-pre-line">{{ problem_text or title }}</p>
+    </section>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+      <h2 class="text-lg font-semibold">Log</h2>
+      <form class="space-y-3" id="log-form">
+        <textarea name="log" id="log" class="w-full min-h-[120px] bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm"
+          placeholder="What did you do? What to improve next time?">{{ log or '' }}</textarea>
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="saveLog()" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm">Save Log</button>
+          <button type="button" onclick="completeTask()" class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/40 text-emerald-200 rounded-lg text-sm">Mark Completed</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    async function saveLog() {
+      const log = document.getElementById('log').value;
+      await fetch(`/tasks/{{ task.id }}/log`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({log})
+      });
+      alert('Log saved');
+    }
+
+    async function completeTask() {
+      const log = document.getElementById('log').value;
+      await fetch(`/tasks/{{ task.id }}/complete`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({log})
+      });
+      alert('Marked completed');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

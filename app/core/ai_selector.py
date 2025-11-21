@@ -12,28 +12,61 @@ except Exception:  # pragma: no cover
     OpenAI = None  # type: ignore
 
 
-SYSTEM_PROMPT = (
-    "You are an adaptive scheduler for daily practice tasks. Return strictly valid JSON following the schema."
-)
+CODING_TEMPLATE_SNIPPET = """
+Example coding task format (Python, runnable with tests):
+
+# Problem: <name>
+# Module: <module_title>
+
+from typing import List, Optional
+# Additional imports if needed
+
+class Solution:
+    def solve(self, *args, **kwargs):
+        # TODO: implement your solution here
+        pass
+
+# Test cases
+def run_tests():
+    tests = [
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...}
+    ]
+    for i, t in enumerate(tests):
+        result = Solution().solve(*t["input"])
+        print(f"Test {i}: expected {t['expected']}, got {result}")
+
+if __name__ == "__main__":
+    run_tests()
+""".strip()
+
 SCHEMA_SPEC = """
 Required JSON schema:
 {
-    "date": "YYYY-MM-DD",
-    "tasks": [
-        {
-            "name": "...",
-            "group": "...",
-            "importance": <optional>,
-            "difficulty_estimate": <optional 1-5>,
-            "reason": "...",
-            "url": "... or null",
-            "metadata": {... arbitrary additional data ...}
-        }
-    ],
-    "summary_notes": "explanation of the reasoning and analysis (not a task)"
+  "date": "YYYY-MM-DD",
+  "tasks": [
+    {
+      "name": "string, required",
+      "group": "string, must match a group from the module config",
+      "task_type": "coding | todo",
+      "problem_text": "string, optional but required for coding",
+      "code_template": "string, required for coding tasks; full python file with starter code + tests",
+      "todo_text": "string, optional; fallback if problem_text is not present",
+      "difficulty_estimate": "1-5 integer, optional",
+      "importance": "optional",
+      "reason": "string explaining why this task was chosen",
+      "url": "optional, for leetcode tasks",
+      "metadata": { "arbitrary additional structured data" }
+    }
+  ],
+  "summary_notes": "string explanation for module summary"
 }
 Reply with only JSON.
 """
+
+
+def _format_module_title(module_id: str) -> str:
+    return module_id.replace("-", " ").replace("_", " ").title()
 
 
 class AISelector:
@@ -41,10 +74,16 @@ class AISelector:
         self.settings = get_settings()
         self.client = OpenAI(api_key=self.settings.openai_api_key) if OpenAI else None
 
-    def _build_system_prompt(self) -> str:
+    def _build_system_prompt(self, module_id: str, module_title: str) -> str:
         prompt_bundle = load_prompt_templates()
-        combined = prompt_bundle or SYSTEM_PROMPT
-        return combined + "\n\n" + SCHEMA_SPEC
+        header = (
+            f"You are generating tasks for the module: {module_title} ({module_id}). "
+            "Produce tasks strictly following the JSON schema. "
+            "The output must be a standalone set of tasks for this module only."
+        )
+        combined = "\n\n".join([header, prompt_bundle or ""])
+        coding_hint = f"\n\nCoding task template guidance:\n{CODING_TEMPLATE_SNIPPET}\n"
+        return combined + coding_hint + "\n\n" + SCHEMA_SPEC
 
     def _build_user_payload(
         self,
@@ -69,6 +108,32 @@ class AISelector:
         }
         return json.dumps(payload, ensure_ascii=False)
 
+    def _build_module_payload(
+        self,
+        module_id: str,
+        module_config: List[Dict[str, Any]],
+        history_snippet: List[Dict[str, Any]],
+    ) -> str:
+        module_title = _format_module_title(module_id)
+        payload = {
+            "today_date": str(date.today()),
+            "module_id": module_id,
+            "module_title": module_title,
+            "module_config": module_config,
+            "history_for_module": history_snippet,
+            "performance_window_days": self.settings.task_sample_days,
+            "user_settings": {
+                "daily_time_budget_minutes": self.settings.time_budget,
+                "task_limits": self.settings.task_limits,
+                "avoid_repetition_days": self.settings.avoid_days,
+                "difficulty_scale_definition": "1=very easy, 5=very hard",
+                "timezone": self.settings.timezone,
+                "max_items_total": self.settings.max_items,
+            },
+            "task_schema_description": "Use the provided schema exactly. coding tasks must include problem_text and code_template. todo tasks may include todo_text.",
+        }
+        return json.dumps(payload, ensure_ascii=False)
+
     def _validate_shape(self, data: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], str]:
         if not isinstance(data, dict):
             raise ValueError("AI response must be an object")
@@ -85,10 +150,20 @@ class AISelector:
             group = task.get("group")
             if not name or not group:
                 continue
+            task_type = task.get("task_type") or "todo"
+            problem_text = task.get("problem_text")
+            code_template = task.get("code_template")
+            todo_text = task.get("todo_text")
+            if task_type == "coding":
+                problem_text = problem_text or todo_text
             cleaned.append(
                 {
                     "name": name,
                     "group": group,
+                    "task_type": task_type,
+                    "problem_text": problem_text,
+                    "code_template": code_template,
+                    "todo_text": todo_text,
                     "importance": task.get("importance"),
                     "difficulty_estimate": task.get("difficulty_estimate"),
                     "reason": task.get("reason"),
@@ -159,3 +234,25 @@ class AISelector:
         except Exception:
             tasks = select_with_fallback(session, groups)
             return tasks, "Fallback selector used after AI failure.", "{}"
+
+    def generate_for_module(
+        self,
+        module_id: str,
+        module_config: List[Dict[str, Any]],
+        history_snippet: List[Dict[str, Any]],
+        settings: Dict[str, Any] | None = None,
+    ) -> Tuple[List[Dict[str, Any]], str, str]:
+        if not self.settings.use_ai or not self.client:
+            raise RuntimeError("AI selector unavailable for module generation.")
+
+        module_title = _format_module_title(module_id)
+        system_prompt = self._build_system_prompt(module_id, module_title)
+        user_content = self._build_module_payload(module_id, module_config, history_snippet)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content},
+        ]
+
+        data = self._request_with_retries(messages)
+        tasks, summary_notes = self._validate_shape(data)
+        return tasks, summary_notes, json.dumps(data)

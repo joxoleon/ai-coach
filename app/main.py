@@ -1,9 +1,10 @@
 from datetime import date
+from typing import Dict, List
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from app.services.avatar_picker import pick_avatar_for_day, pick_quote_for_avatar, pick_random_avatar
+from app.services.avatar_picker import pick_random_avatar, pick_quote_for_avatar
 from app.services.loader import load_configs
 
 from app.api import tasks as tasks_router
@@ -46,40 +47,34 @@ def home(request: Request, db=Depends(get_db)):
     # reuse /today data for template
     today = date.today()
     tasks = db.query(TodayTask).filter(TodayTask.date == today).all()
-    grouped: Dict[str, list[TodayTask]] = {}
+    module_tasks: Dict[str, List[TodayTask]] = {}
     for t in tasks:
-        grouped.setdefault(t.group, []).append(t)
+        module_tasks.setdefault(t.module_id, []).append(t)
+
     avatar = pick_random_avatar()
     if avatar:
         avatar_quote = pick_quote_for_avatar(avatar)
         if avatar_quote:
             avatar = {**avatar, "quote": avatar_quote}
-    tab_param = request.query_params.get("tab", "today")
-    configs = load_configs()
-    tabs = ["today"] + list(configs.keys())
-    active_tab = tab_param if tab_param in tabs else "today"
 
-    # Map tasks to YAML file tabs by matching group names inside each config file
-    tasks_by_tab: Dict[str, Dict[str, list[TodayTask]]] = {}
-    for cfg_name, entries in configs.items():
-        file_mapping: Dict[str, list[TodayTask]] = {}
-        for entry in entries:
-            gname = entry.get("group")
-            if gname and gname in grouped:
-                file_mapping[gname] = grouped[gname]
-        tasks_by_tab[cfg_name] = file_mapping
+    loaded_configs = load_configs()
+    configs = getattr(loaded_configs, "modules", {}) if loaded_configs is not None else {}
+    tabs = ["today"] + sorted(configs.keys())
+    module_labels = {mid: mid.replace("-", " ").replace("_", " ").title() for mid in configs.keys()}
+    tab_param = request.query_params.get("tab", "today")
+    active_tab = tab_param if tab_param in tabs else "today"
 
     return templates.TemplateResponse(
         "dashboard.html",
         {
             "request": request,
-            "tasks_all": grouped,
-            "tasks": tasks_by_tab,
+            "module_tasks": module_tasks,
+            "module_labels": module_labels,
+            "configs": configs,
             "date": today,
             "avatar": avatar,
             "tabs": tabs,
             "active_tab": active_tab,
-            "configs": configs,
         },
     )
 

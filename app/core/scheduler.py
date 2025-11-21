@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.services.loader import load_configs
+from app.services.selector import select_with_fallback
 from app.core.ai_selector import AISelector
 from app.models.task import TodayTask
 from app.models.history import TaskHistory
@@ -48,6 +49,8 @@ def _serialize_history(rows: List[TaskHistory]) -> List[Dict[str, Any]]:
             {
                 "name": sample.name,
                 "group": sample.group,
+                "module_id": getattr(sample, "module_id", None),
+                "task_type": getattr(sample, "task_type", None),
                 "last_seen": str(sample.date),
                 "days_since_last_solved": days_since_last_solved,
                 "streak": streak,
@@ -65,6 +68,7 @@ def _serialize_today_tasks(rows: List[TodayTask]) -> List[Dict[str, Any]]:
     for r in rows:
         payload.append(
             {
+                "module_id": getattr(r, "module_id", None),
                 "name": r.name,
                 "group": r.group,
                 "url": r.url,
@@ -75,58 +79,86 @@ def _serialize_today_tasks(rows: List[TodayTask]) -> List[Dict[str, Any]]:
     return payload
 
 
-def generate_daily_tasks(session: Session) -> List[TodayTask]:
-    groups = load_configs()
-    history_window_start = date.today() - timedelta(days=settings.task_sample_days)
+def generate_module_tasks(
+    session: Session,
+    module_id: str,
+    module_config: List[Dict[str, Any]],
+    history_window_days: int,
+) -> Tuple[List[Dict[str, Any]], str, str]:
+    today = date.today()
+    history_window_start = today - timedelta(days=history_window_days)
     history_rows = (
         session.query(TaskHistory)
-        .filter(TaskHistory.date >= history_window_start)
+        .filter(
+            TaskHistory.date >= history_window_start,
+            TaskHistory.module_id == module_id,
+        )
         .order_by(TaskHistory.timestamp.desc())
         .all()
     )
-    recent_today = (
-        session.query(TodayTask)
-        .filter(TodayTask.date >= history_window_start)
-        .order_by(TodayTask.date.desc())
-        .all()
-    )
+    history_snippet = _serialize_history(history_rows)
 
-    plan, summary_notes, raw_ai = ai_selector.generate(
-        groups,
-        _serialize_history(history_rows),
-        _serialize_today_tasks(recent_today),
-        session,
-    )
+    try:
+        tasks, summary_notes, raw_ai = ai_selector.generate_for_module(
+            module_id,
+            module_config,
+            history_snippet,
+        )
+        return tasks, summary_notes, raw_ai
+    except Exception:
+        fallback_tasks = select_with_fallback(session, module_config)
+        return fallback_tasks, "Fallback selector used (AI disabled or unavailable).", "{}"
 
-    session.query(TodayTask).filter(TodayTask.date == date.today()).delete()
-    session.query(DailySummary).filter(DailySummary.date == date.today()).delete()
+
+def generate_daily_tasks(session: Session) -> List[TodayTask]:
+    loaded_configs = load_configs()
+    module_configs = getattr(loaded_configs, "modules", {}) if loaded_configs is not None else {}
+    today = date.today()
+
+    session.query(TodayTask).filter(TodayTask.date == today).delete()
+    session.query(DailySummary).filter(DailySummary.date == today).delete()
 
     created: List[TodayTask] = []
-    for item in plan:
-        metadata = item.get("metadata") or {}
-        extra = {
-            "reason": item.get("reason"),
-            "metadata": metadata,
-            "action": metadata.get("action"),
-            "difficulty_estimate": item.get("difficulty_estimate"),
-        }
-        task = TodayTask(
-            date=date.today(),
-            name=item.get("name"),
-            group=item.get("group"),
-            url=item.get("url"),
-            extra=extra,
+    for module_id, module_config in module_configs.items():
+        tasks, summary_notes, raw_ai = generate_module_tasks(
+            session,
+            module_id,
+            module_config,
+            settings.task_sample_days,
         )
-        session.add(task)
-        created.append(task)
 
-    session.add(
-        DailySummary(
-            date=date.today(),
-            summary_text=summary_notes,
-            raw_ai_response=raw_ai,
+        for item in tasks:
+            metadata = item.get("metadata") or {}
+            task_type = item.get("task_type") or "todo"
+            extra = {
+                "reason": item.get("reason"),
+                "metadata": metadata,
+                "action": metadata.get("action"),
+                "difficulty_estimate": item.get("difficulty_estimate"),
+            }
+            task = TodayTask(
+                date=today,
+                module_id=module_id,
+                name=item.get("name"),
+                group=item.get("group"),
+                task_type=task_type,
+                problem_text=item.get("problem_text"),
+                code_template=item.get("code_template"),
+                log=item.get("log"),
+                url=item.get("url"),
+                extra=extra,
+            )
+            session.add(task)
+            created.append(task)
+
+        session.add(
+            DailySummary(
+                date=today,
+                module_id=module_id,
+                summary_text=summary_notes,
+                raw_ai_response=raw_ai,
+            )
         )
-    )
 
     session.commit()
     return created

@@ -6,18 +6,71 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 
 from app.core.database import get_db
-from app.core.scheduler import generate_daily_tasks
+from app.core.scheduler import generate_daily_tasks, generate_module_tasks
 from app.models.task import TodayTask
 from app.models.history import TaskHistory
 from app.models.daily_summary import DailySummary
+from app.services.loader import load_configs
+from app.core.config import get_settings
 
 router = APIRouter()
+settings = get_settings()
 
 
 @router.post("/refresh")
 def refresh(db: Session = Depends(get_db)):
     tasks = generate_daily_tasks(db)
     return {"status": "refreshed", "count": len(tasks)}
+
+
+@router.post("/refresh/module/{module_id}")
+def refresh_module(module_id: str, db: Session = Depends(get_db)):
+    loaded_configs = load_configs()
+    module_configs = getattr(loaded_configs, "modules", {}) if loaded_configs is not None else {}
+    module_config = module_configs.get(module_id)
+    if not module_config:
+        return {"status": "error", "detail": f"Module '{module_id}' not found"}
+
+    # delete existing tasks/summary for this module today
+    db.query(TodayTask).filter(TodayTask.date == date.today(), TodayTask.module_id == module_id).delete()
+    db.query(DailySummary).filter(DailySummary.date == date.today(), DailySummary.module_id == module_id).delete()
+
+    tasks, summary_notes, raw_ai = generate_module_tasks(db, module_id, module_config, settings.task_sample_days)
+
+    created = 0
+    for item in tasks:
+        metadata = item.get("metadata") or {}
+        extra = {
+            "reason": item.get("reason"),
+            "metadata": metadata,
+            "action": metadata.get("action"),
+            "difficulty_estimate": item.get("difficulty_estimate"),
+        }
+        task = TodayTask(
+            date=date.today(),
+            module_id=module_id,
+            name=item.get("name"),
+            group=item.get("group"),
+            task_type=item.get("task_type") or "todo",
+            problem_text=item.get("problem_text"),
+            code_template=item.get("code_template"),
+            log=item.get("log"),
+            url=item.get("url"),
+            extra=extra,
+        )
+        db.add(task)
+        created += 1
+
+    db.add(
+        DailySummary(
+            date=date.today(),
+            module_id=module_id,
+            summary_text=summary_notes,
+            raw_ai_response=raw_ai,
+        )
+    )
+    db.commit()
+    return {"status": "refreshed", "module": module_id, "count": created}
 
 
 @router.get("/admin/plan", response_class=HTMLResponse)
