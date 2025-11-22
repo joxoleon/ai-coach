@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import Dict, Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -39,6 +39,10 @@ class LogPayload(BaseModel):
 class CompletePayload(BaseModel):
     difficulty: int | None = Field(default=None, ge=1, le=5)
     log: str | None = None
+
+
+class NotesPayload(BaseModel):
+    notes: str | None = None
 
 
 def _find_today_task(db: Session, task_id: int | None, name: str, group: str) -> TodayTask | None:
@@ -124,7 +128,9 @@ def mark_done(payload: DonePayload, db: Session = Depends(get_db)):
         group=payload.group,
         task_type=task_type,
         problem_text=today_entry.problem_text if today_entry else None,
+        todo_text=today_entry.todo_text if today_entry else None,
         code_template=today_entry.code_template if today_entry else None,
+        notes=today_entry.notes if today_entry else None,
         log=payload.log if payload.log is not None else (today_entry.log if today_entry else None),
         completed=True,
         difficulty=payload.difficulty,
@@ -147,7 +153,9 @@ def feedback(payload: FeedbackPayload, db: Session = Depends(get_db)):
         group=payload.group,
         task_type=task_type,
         problem_text=today_entry.problem_text if today_entry else None,
+        todo_text=today_entry.todo_text if today_entry else None,
         code_template=today_entry.code_template if today_entry else None,
+        notes=today_entry.notes if today_entry else None,
         log=payload.log if payload.log is not None else (today_entry.log if today_entry else None),
         completed=False,
         difficulty=payload.difficulty,
@@ -237,6 +245,16 @@ def update_task_log(task_id: int, payload: LogPayload, db: Session = Depends(get
     return {"status": "saved", "task_id": task_id}
 
 
+@router.patch("/api/tasks/{task_id}/notes")
+def update_task_notes(task_id: int, payload: NotesPayload, db: Session = Depends(get_db)):
+    task = db.query(TodayTask).filter(TodayTask.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.notes = payload.notes
+    db.commit()
+    return {"status": "saved", "task_id": task_id, "notes": task.notes}
+
+
 @router.post("/tasks/{task_id}/complete")
 def complete_task(task_id: int, payload: CompletePayload, db: Session = Depends(get_db)):
     task = db.query(TodayTask).filter(TodayTask.id == task_id).first()
@@ -250,7 +268,9 @@ def complete_task(task_id: int, payload: CompletePayload, db: Session = Depends(
         group=task.group,
         task_type=task.task_type,
         problem_text=task.problem_text,
+        todo_text=task.todo_text,
         code_template=task.code_template,
+        notes=task.notes,
         log=payload.log if payload.log is not None else task.log,
         completed=True,
         difficulty=payload.difficulty,
@@ -260,3 +280,36 @@ def complete_task(task_id: int, payload: CompletePayload, db: Session = Depends(
     db.delete(task)
     db.commit()
     return {"status": "completed", "task_id": task_id}
+@router.get("/api/tasks/{task_id}")
+def get_task(task_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    task = db.query(TodayTask).filter(TodayTask.id == task_id).first()
+    source = "today"
+    if not task:
+        task = db.query(TaskHistory).filter(TaskHistory.id == task_id).first()
+        source = "history"
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    def serialize(t):
+        return {
+            "id": t.id,
+            "date": str(t.date),
+            "module_id": t.module_id,
+            "name": t.name,
+            "group": t.group,
+            "task_type": getattr(t, "task_type", "todo"),
+            "problem_text": getattr(t, "problem_text", None),
+            "todo_text": getattr(t, "todo_text", None),
+            "code_template": getattr(t, "code_template", None),
+            "notes": getattr(t, "notes", None),
+            "log": getattr(t, "log", None),
+            "url": t.url,
+            "extra": t.extra,
+            "reason": (t.extra or {}).get("reason") if t.extra else None,
+            "metadata": (t.extra or {}).get("metadata") if t.extra else None,
+            "difficulty_estimate": (t.extra or {}).get("difficulty_estimate") if t.extra else None,
+            "importance": (t.extra or {}).get("importance") if t.extra else None,
+            "source": source,
+        }
+
+    return serialize(task)

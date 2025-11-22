@@ -143,6 +143,7 @@ def generate_daily_tasks(session: Session) -> List[TodayTask]:
                 group=item.get("group"),
                 task_type=task_type,
                 problem_text=item.get("problem_text"),
+                todo_text=item.get("todo_text"),
                 code_template=item.get("code_template"),
                 log=item.get("log"),
                 url=item.get("url"),

@@ -13,6 +13,7 @@ from app.core.database import Base, engine, get_db, SessionLocal
 from app.core.scheduler import start_scheduler, generate_daily_tasks, scheduler
 from app.models.task import TodayTask
 from app.models.daily_summary import DailySummary  # noqa: F401 - ensure table creation
+from app.models.history import TaskHistory
 
 app = FastAPI(title="Adaptive Daily Task Scheduler")
 app.include_router(tasks_router.router)
@@ -87,4 +88,27 @@ def admin(request: Request, db=Depends(get_db)):
     return templates.TemplateResponse(
         "admin.html",
         {"request": request, "tasks": tasks, "date": today, "history": history},
+    )
+
+
+@app.get("/task/{task_id}", response_class=HTMLResponse)
+def task_detail_page(task_id: int, request: Request, db=Depends(get_db)):
+    task = db.query(TodayTask).filter(TodayTask.id == task_id).first()
+    if not task:
+        task = db.query(TaskHistory).filter(TaskHistory.id == task_id).first()
+    if not task:
+        return HTMLResponse("Task not found", status_code=404)
+    module_label = task.module_id.replace("-", " ").replace("_", " ").title()
+    template_name = "tasks/coding_detail.html" if task.task_type == "coding" else "tasks/todo_detail.html"
+    return templates.TemplateResponse(
+        template_name,
+        {
+            "request": request,
+            "task": task,
+            "module_id": module_label,
+            "title": task.name,
+            "problem_text": task.problem_text or task.todo_text,
+            "code_template": task.code_template,
+            "log": task.log,
+        },
     )

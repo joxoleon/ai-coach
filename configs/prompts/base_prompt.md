@@ -34,6 +34,13 @@ Per-module task limits (hard caps, never exceed):
 - Habits: 0–1 tasks.
 - Any other module: 0–1 tasks.
 
+Coding task template rules (apply to DSA Fundamentals & LeetCode coding tasks):
+- Always include a full Python file with imports, starter class/function, and a runnable test harness at the bottom.
+- Do NOT provide full solved code; leave the solution body as `pass` (or minimal TODO stub) with a `# TODO: implement here` comment.
+- Keep tests deterministic and runnable with `python file.py`.
+- If linking a LeetCode problem, include the URL but keep the code unsolved/stubbed.
+- For any coding task (DSA Fundamentals or LeetCode), if a LeetCode-equivalent problem exists, include its URL in the `url` field; otherwise set `url` to null. Do not invent URLs.
+
 Your priorities when selecting tasks:
 1. Reinforce **weaknesses**.
 2. Maintain a light rotation through fundamentals without expanding subgroups; pick the single most useful tier only.

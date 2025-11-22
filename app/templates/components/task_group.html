@@ -10,7 +10,7 @@
     <div class="px-4 py-3 flex flex-col gap-3" id="task-{{ item.id }}">
       <div class="flex items-center justify-between gap-3">
         <div class="space-y-1">
-          <p class="font-medium">{{ item.name }}</p>
+          <a href="/task/{{ item.id }}" class="font-medium text-sky-200 hover:text-sky-100">{{ item.name }}</a>
           {% if item.url %}
           <a href="{{ item.url }}" class="text-xs text-sky-300" target="_blank" rel="noopener">Link</a>
           {% endif %}

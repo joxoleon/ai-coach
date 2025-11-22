@@ -30,7 +30,14 @@ class Solution:
 def run_tests():
     tests = [
         {"input": [...], "expected": ...},
-        {"input": [...], "expected": ...}
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
+        {"input": [...], "expected": ...},
     ]
     for i, t in enumerate(tests):
         result = Solution().solve(*t["input"])

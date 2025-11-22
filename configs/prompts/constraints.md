@@ -92,6 +92,11 @@ Your output must:
 - be deterministic for the same input
 - Never exceed per-module task caps, even if time remains.
 
+6. Coding template specifics
+- Provide a full Python file with imports, starter class/function, and runnable tests.
+- Do NOT include completed solutions; leave the core implementation as `pass` (or a minimal TODO stub) with a `# TODO: implement here` comment.
+- Tests must be runnable directly with `python file.py` and be deterministic.
+
 6. Failure Handling
 If unable to produce a plan due to malformed input, output:
 

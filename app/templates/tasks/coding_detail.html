@@ -16,12 +16,22 @@
         <p class="text-xs text-slate-400 uppercase tracking-wide">{{ module_id }}</p>
         <h1 class="text-2xl font-bold">{{ title }}</h1>
       </div>
-      <a href="/" class="text-sm text-sky-300">Back</a>
+      <div class="flex items-center gap-3">
+        {% if task.url %}
+          <a href="{{ task.url }}" target="_blank" rel="noopener" class="text-sm text-sky-300 underline">LeetCode Link</a>
+        {% endif %}
+        <a href="/" class="text-sm text-sky-300">Back</a>
+      </div>
     </header>
 
     <section class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
       <h2 class="text-lg font-semibold">Problem</h2>
       <p class="text-slate-200 whitespace-pre-line">{{ problem_text or 'No description provided.' }}</p>
+      {% if task.url %}
+        <div class="text-sm">
+          <a href="{{ task.url }}" target="_blank" rel="noopener" class="text-sky-300 underline">Open related LeetCode problem</a>
+        </div>
+      {% endif %}
     </section>
 
     <section class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
